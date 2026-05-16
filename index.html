@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy Birthday!</title>
+
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --aurora-1: hsla(333, 70%, 55%, 0.4);
+            --aurora-2: hsla(282, 82%, 54%, 0.3);
+            --aurora-3: hsla(210, 89%, 60%, 0.3);
+            --aurora-4: hsla(35, 90%, 60%, 0.3);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0c0a09;
+            color: #f5f5f5;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow: hidden;
+        }
+
+        h1, h2 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Aurora Background */
+        .aurora-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+
+            background:
+                radial-gradient(circle at 20% 30%, var(--aurora-1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, var(--aurora-2) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, var(--aurora-3) 0%, transparent 50%),
+                radial-gradient(circle at 10% 90%, var(--aurora-4) 0%, transparent 50%);
+
+            filter: blur(80px);
+            animation: aurora-drift 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes aurora-drift {
+            0% {
+                transform: scale(1) translate(0, 0);
+            }
+
+            100% {
+                transform: scale(1.2) translate(2%, 3%);
+            }
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: rgba(12, 10, 9, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+        }
+
+        .text-gradient {
+            background: linear-gradient(to right, #ff9eb5, #ffffff, #ff9eb5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(45deg, #ec4899, #ef4444);
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.6);
+        }
+
+        /* Progress Bar */
+        #progress-track {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        #progress-bar {
+            background: linear-gradient(90deg, #ec4899, #ef4444);
+            width: 20%;
+            transition: width 0.6s ease;
+        }
+
+        /* Canvas */
+        #heart-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Polaroid */
+        .polaroid {
+            background: white;
+            padding: 12px 12px 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .polaroid img {
+            width: 300px;
+            height: 350px;
+            object-fit: cover;
+            border-radius: 6px;
+            display: block;
+        }
+
+        .step-container {
+            display: none;
+            opacity: 0;
+        }
+
+        .step-active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .heart-beat {
+            animation: beat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes beat {
+            0%,100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen p-4 overflow-hidden">
+
+    <!-- Background -->
+    <div class="aurora-bg"></div>
+    <canvas id="heart-canvas"></canvas>
+
+    <!-- Progress -->
+    <div class="fixed top-8 left-1/2 -translate-x-1/2 w-64 h-1.5 rounded-full overflow-hidden" id="progress-track">
+        <div id="progress-bar" class="h-full"></div>
+    </div>
+
+    <!-- MAIN -->
+    <main class="w-full max-w-2xl">
+
+        <!-- STEP 1 -->
+        <section id="step1" class="step-container step-active flex-col items-center text-center">
+
+            <div class="text-6xl mb-6 heart-beat">❤️</div>
+
+            <div class="glass-card p-8 md:p-12 w-full">
+
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-gradient">
+                    Hey Beautiful,
+                </h1>
+
+                <p class="text-gray-300 text-lg mb-8 leading-relaxed">
+                    I built a little world for you, just to bring a smile to your face on your special day.
+                </p>
+
+                <button onclick="nextStep(2)"
+                    class="btn-primary text-white px-8 py-3 rounded-full font-semibold">
+                    Let's Begin
+                </button>
+
+            </div>
+        </section>
+
+        <!-- STEP 2 -->
+        <section id="step2" class="step-container flex-col items-center text-center">
+
+            <div class="text-6xl mb-6">🎉</div>
+
+            <div class="glass-card p-8 md:p-12 w-full">
+
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 text-gradient">
+                    Happy Birthday!
+                </h2>
+
+                <p class="text-gray-300 text-lg mb-8 leading-relaxed">
+                    Another year of you making the world brighter.
+                </p>
+
+                <button onclick="nextStep(3)"
+                    class="btn-primary text-white px-8 py-3 rounded-full font-semibold">
+                    There's more...
+                </button>
+
+            </div>
+        </section>
+
+        <!-- STEP 3 -->
+        <section id="step3" class="step-container flex-col items-center">
+
+            <h2 class="text-3xl md:text-4xl font-bold mb-8 text-gradient text-center">
+                A Few Things I Adore About You
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 w-full">
+
+                <div class="glass-card p-6 md:col-span-2">
+                    <h3 class="text-pink-400 font-bold mb-2">
+                        ✨ Your Kindness
+                    </h3>
+
+                    <p class="text-sm text-gray-300">
+                        Your smile and warmth make everything beautiful.
+                    </p>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-pink-400 font-bold mb-2">
+                        😊 That Smile
+                    </h3>
+
+                    <p class="text-sm text-gray-300">
+                        It's magical.
+                    </p>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-pink-400 font-bold mb-2">
+                        🌟 Your Energy
+                    </h3>
+
+                    <p class="text-sm text-gray-300">
+                        You make life brighter.
+                    </p>
+                </div>
+
+            </div>
+
+            <button onclick="nextStep(4)"
+                class="btn-primary text-white px-8 py-3 rounded-full font-semibold">
+                Remember this?
+            </button>
+
+        </section>
+
+        <!-- STEP 4 -->
+        <section id="step4" class="step-container flex-col items-center text-center">
+
+            <h2 class="text-3xl md:text-4xl font-bold mb-8 text-gradient">
+                That One Time...
+            </h2>
+
+            <div id="polaroid-wrapper" class="mb-8">
+
+                <div class="polaroid transform -rotate-2">
+
+                    <!-- YOUR PHOTO -->
+                    <img src="myphoto.jpg.jpg" alt="Memory">
+
+                    <p class="text-gray-800 mt-4 text-xl"
+                        style="font-family: 'Playfair Display';">
+                        Our favorite memory.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="glass-card p-6 mb-8 w-full">
+
+                <p class="text-gray-300 italic">
+                    "Every moment with you feels like a scene from a movie I'd watch on repeat."
+                </p>
+
+            </div>
+
+            <button onclick="nextStep(5)"
+                class="btn-primary text-white px-8 py-3 rounded-full font-semibold">
+                One last thing...
+            </button>
+
+        </section>
+
+        <!-- STEP 5 -->
+        <section id="step5" class="step-container flex-col items-center text-center">
+
+            <div class="text-6xl mb-6">🎂</div>
+
+            <div class="glass-card p-8 md:p-12 w-full">
+
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 text-gradient">
+                    My Wish For You
+                </h2>
+
+                <p class="text-gray-300 text-lg mb-8 leading-relaxed">
+                    May your life always stay beautiful and full of happiness.
+                </p>
+
+                <div id="final-message"
+                    class="hidden text-2xl font-bold text-pink-400 mb-8 mt-4">
+
+                    Happy Birthday ❤️
+
+                </div>
+
+                <button id="celebrate-btn"
+                    onclick="startFinale()"
+                    class="btn-primary text-white px-12 py-4 rounded-full font-bold text-xl">
+
+                    Celebrate!
+
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+
+        // STEP NAVIGATION
+
+        let currentStep = 1;
+
+        function nextStep(step) {
+
+            const currentEl = document.getElementById(`step${currentStep}`);
+            const nextEl = document.getElementById(`step${step}`);
+            const progressBar = document.getElementById('progress-bar');
+
+            gsap.to(currentEl, {
+                opacity: 0,
+                y: -20,
+                duration: 0.5,
+
+                onComplete: () => {
+
+                    currentEl.classList.remove('step-active');
+
+                    nextEl.classList.add('step-active');
+
+                    gsap.fromTo(
+                        nextEl,
+                        { opacity: 0, y: 20 },
+                        { opacity: 1, y: 0, duration: 0.6 }
+                    );
+                }
+            });
+
+            currentStep = step;
+
+            progressBar.style.width = `${(step / 5) * 100}%`;
+        }
+
+        // FINAL CELEBRATION
+
+        function startFinale() {
+
+            const btn = document.getElementById('celebrate-btn');
+            const finalMsg = document.getElementById('final-message');
+
+            btn.style.display = 'none';
+
+            finalMsg.classList.remove('hidden');
+
+            confetti({
+                particleCount: 200,
+                spread: 120,
+                origin: { y: 0.6 }
+            });
+        }
+
+        // THREE JS HEARTS
+
+        let scene, camera, renderer, hearts = [];
+
+        function initThree() {
+
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(
+                75,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+
+            renderer = new THREE.WebGLRenderer({
+                canvas: document.getElementById('heart-canvas'),
+                alpha: true
+            });
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            const geometry = new THREE.SphereGeometry(0.5, 16, 16);
+
+            const material = new THREE.MeshBasicMaterial({
+                color: 0xff4d88
+            });
+
+            for (let i = 0; i < 40; i++) {
+
+                const heart = new THREE.Mesh(geometry, material);
+
+                heart.position.x = (Math.random() - 0.5) * 50;
+                heart.position.y = (Math.random() - 0.5) * 50;
+                heart.position.z = (Math.random() - 0.5) * 50;
+
+                scene.add(heart);
+
+                hearts.push(heart);
+            }
+
+            camera.position.z = 20;
+
+            animate();
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+
+            hearts.forEach((heart) => {
+
+                heart.rotation.x += 0.01;
+                heart.rotation.y += 0.01;
+
+                heart.position.y += 0.01;
+
+                if (heart.position.y > 30) {
+                    heart.position.y = -30;
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        window.onload = () => {
+
+            initThree();
+
+            gsap.from(".step-active", {
+                opacity: 0,
+                y: 20,
+                duration: 1
+            });
+        };
+
+    </script>
+
+</body>
+</html>
